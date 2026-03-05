@@ -1,5 +1,5 @@
 from src.linear_models.eval_linear_models import evaluate_linear_models
-from src.linear_models.error_analysis import collect_misclassified_svm
+from src.error_analysis import collect_misclassified_svm
 
 def main():
     evaluate_linear_models()
