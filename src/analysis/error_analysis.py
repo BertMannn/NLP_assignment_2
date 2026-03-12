@@ -1,3 +1,5 @@
+# Dit is nog van eerste opdracht
+
 from data.preprocessing import preprocess_ag_news
 from src.linear_models.train_linear_models import train_linear_models
 
