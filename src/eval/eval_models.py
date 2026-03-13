@@ -16,12 +16,20 @@ def load_nn_models(vocab_size: int) -> dict:
     cnn = CNNTextClassifier(vocab_size=vocab_size, embedding_dim=128, num_classes=4)
     cnn.load_state_dict(torch.load("best_cnn.pt", map_location=DEVICE))
 
+    cnn_ablation = CNNTextClassifier(vocab_size=vocab_size, embedding_dim=128, num_classes=4)
+    cnn_ablation.load_state_dict(torch.load("best_ccn_0_dropout.pt", map_location=DEVICE))
+
     lstm = LSTMTextClassifier(
         vocab_size=vocab_size, embedding_dim=128, hidden_size=256, num_classes=4
     )
     lstm.load_state_dict(torch.load("best_lstm.pt", map_location=DEVICE))
+    
+    lstm_ablation =LSTMTextClassifier(
+        vocab_size=vocab_size, embedding_dim=128, hidden_size=256, num_classes=4
+    )
+    lstm_ablation.load_state_dict(torch.load("best_lstm_0_dropout.pt", map_location=DEVICE))
 
-    return {"CNN": cnn, "LSTM": lstm}
+    return {"CNN": cnn, "CNN (dropout 0.0)":cnn_ablation, "LSTM": lstm, "LSTM (dropout 0.0)": lstm_ablation}
 
 
 @torch.no_grad()
