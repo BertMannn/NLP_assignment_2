@@ -9,6 +9,7 @@ from sklearn.metrics import f1_score, accuracy_score
 from src.neural_models.cnn_model import CNNTextClassifier
 from src.neural_models.lstm_model import LSTMTextClassifier
 from data.preprocessing import preprocess_ag_news
+import itertools
 
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -110,7 +111,23 @@ def train(
     return history
 
 
+def tune_hyperparameters(model, train_loader, dev_loader, param_grid, epochs=10, patience=2):
+    best_params, best_f1, best_history = None, -1.0, None
+    keys, values = zip(*param_grid.items())
+ 
+    for combo in itertools.product(*values):
+        params = dict(zip(keys, combo))
+        history = train(model, train_loader, dev_loader, epochs=epochs, patience=patience, **params)
+        f1 = max(history["dev_f1"])
+        print(f"{params} -> macro F1: {f1:.4f}")
+        if f1 > best_f1:
+            best_f1, best_params, best_history = f1, params, history
+ 
+    print(f"\nBest macro F1: {best_f1:.4f} | Best params: {best_params}")
+    return best_history
+
 def plot_learning_curves(history, model_name):
+    """"Plot the learning curves"""
     epochs = range(1, len(history["train_loss"]) + 1)
 
     plt.figure()
@@ -151,14 +168,16 @@ if __name__ == "__main__":
     lstm = LSTMTextClassifier(
         vocab_size=len(vocab), embedding_dim=128, hidden_size=256, num_classes=4
     )
+    
+    tune_grid = {"lr": [1e-2, 1e-3, 3e-4], "clip_grad": [1.0, 5.0]}
+    # cnn_history = tune_hyperparameters(cnn, train_loader, dev_loader, param_grid=tune_grid, model_path="best_ccn.pt")
+    # lstm_history = tune_hyperparameters(lstm, train_loader, dev_loader, param_grid=tune_grid, model_path="best_lstm.pt")
 
-    cnn_history = train(
-        cnn, train_loader, dev_loader, epochs=10, patience=2, model_path="best_cnn.pt"
-    )
-    lstm_history = train(
-        lstm, train_loader, dev_loader, epochs=10, patience=2, model_path="best_lstm.pt"
-    )
-
+    
+    # Since both hyperparameters are the same, I put them as defaults in train.py
+    cnn_history = train(cnn, train_loader, dev_loader, model_path="best_ccn.pt")
+    lstm_history = train(lstm, train_loader, dev_loader, model_path="best_lstm.pt")  
+    
     plot_learning_curves(cnn_history, "CNN")
     plot_learning_curves(lstm_history, "LSTM")
 
