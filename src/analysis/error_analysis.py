@@ -3,6 +3,7 @@
 from data.preprocessing import preprocess_ag_news
 from src.linear_models.train_linear_models import train_linear_models
 
+
 def collect_misclassified_svm(n=20):
     data = preprocess_ag_news()
     models = train_linear_models(data["train"]["text"], data["train"]["label"])
@@ -26,6 +27,7 @@ def collect_misclassified_svm(n=20):
             count += 1
             if count == n:
                 break
+
 
 if __name__ == "__main__":
     collect_misclassified_svm(n=20)

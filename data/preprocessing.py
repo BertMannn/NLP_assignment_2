@@ -1,5 +1,6 @@
 from collections import Counter
 from data.load_data import load_ag_news
+import torch
 
 MAX_LENGTH = 128
 
@@ -48,7 +49,7 @@ def encode_text(text, vocab):
     return ids
 
 
-def preprocess_ag_news() -> dict:
+def preprocess_ag_news() -> tuple[dict, dict]:
     """Preprocess and load the AG News dataset for neural models.
 
     Returns:
@@ -73,8 +74,12 @@ def preprocess_ag_news() -> dict:
         for text in texts:
             encoded_texts.append(encode_text(text, vocab))
 
-        processed_datasets[dataset]["text"] = encoded_texts
-        processed_datasets[dataset]["label"] = datasets[dataset]["label"]
+        processed_datasets[dataset]["text"] = torch.tensor(
+            encoded_texts, dtype=torch.long
+        )
+        processed_datasets[dataset]["label"] = torch.tensor(
+            datasets[dataset]["label"], dtype=torch.long
+        )
 
         if dataset == "test":
             processed_datasets[dataset]["raw_text"] = texts

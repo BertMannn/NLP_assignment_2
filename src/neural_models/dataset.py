@@ -1,6 +1,7 @@
 import torch
 from torch.utils.data import Dataset
 
+
 class AGNewsDataset(Dataset):
     """PyTorch Dataset for AG News using preprocessed token IDs"""
 
@@ -20,5 +21,3 @@ class AGNewsDataset(Dataset):
         x = torch.tensor(self.texts[idx], dtype=torch.long)
         y = torch.tensor(self.labels[idx], dtype=torch.long)
         return x, y
-    
-    

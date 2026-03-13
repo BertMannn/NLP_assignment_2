@@ -4,15 +4,15 @@ import torch.nn as nn
 class LSTMTextClassifier(nn.Module):
     """LSTM-based text classifier for AG News"""
 
-    def __init__(self, vocab_size, embedding_dim, hidden_size, num_classes, dropout=0.3):
+    def __init__(
+        self, vocab_size, embedding_dim, hidden_size, num_classes, dropout=0.3
+    ):
         super(LSTMTextClassifier, self).__init__()
 
         self.embedding = nn.Embedding(vocab_size, embedding_dim, padding_idx=0)
 
         self.lstm = nn.LSTM(
-            input_size=embedding_dim,
-            hidden_size=hidden_size,
-            batch_first=True
+            input_size=embedding_dim, hidden_size=hidden_size, batch_first=True
         )
 
         self.dropout = nn.Dropout(dropout)
@@ -21,7 +21,7 @@ class LSTMTextClassifier(nn.Module):
     def forward(self, x):
         # x: (batch_size, seq_len)
 
-        x = self.embedding(x)  
+        x = self.embedding(x)
         # (batch_size, seq_len, embedding_dim)
 
         lstm_out, (hidden, cell) = self.lstm(x)

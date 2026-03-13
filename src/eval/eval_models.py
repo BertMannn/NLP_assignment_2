@@ -12,18 +12,22 @@ from src.neural_models.lstm_model import LSTMTextClassifier
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-def load_nn_models() -> dict:
-    cnn = CNNTextClassifier(vocab_size=50_000, embedding_dim=128, num_classes=4)
+def load_nn_models(vocab_size: int) -> dict:
+    cnn = CNNTextClassifier(vocab_size=vocab_size, embedding_dim=128, num_classes=4)
     cnn.load_state_dict(torch.load("best_cnn.pt", map_location=DEVICE))
 
-    lstm = LSTMTextClassifier(vocab_size=50_000, embedding_dim=128, hidden_size=256, num_classes=4)
+    lstm = LSTMTextClassifier(
+        vocab_size=vocab_size, embedding_dim=128, hidden_size=256, num_classes=4
+    )
     lstm.load_state_dict(torch.load("best_lstm.pt", map_location=DEVICE))
 
     return {"CNN": cnn, "LSTM": lstm}
 
 
 @torch.no_grad()
-def get_predictions(model: nn.Module, tokens: torch.Tensor, batch_size: int = 64) -> list:
+def get_predictions(
+    model: nn.Module, tokens: torch.Tensor, batch_size: int = 64
+) -> list:
     model.eval().to(DEVICE)
     loader = DataLoader(TensorDataset(tokens), batch_size=batch_size)
     preds = []
@@ -37,12 +41,12 @@ def evaluate_nn_models() -> None:
     """Evaluate CNN and LSTM models on the AG News dataset.
     Reports Macro-F1, Accuracy, and a Confusion Matrix for both test and dev splits.
     """
-    datasets = preprocess_ag_news()
-    models = load_nn_models()
+    datasets, vocab = preprocess_ag_news()
+    models = load_nn_models(vocab_size=len(vocab))
 
     for split in ("test", "dev"):
-        print(f"Evaluating neural models on the {split} set...")
-        text = datasets[split]["text"]   
+        print(f"Evaluating neural models on the {split} set")
+        text = datasets[split]["text"]
         labels = datasets[split]["label"]
 
         for model_name, model in models.items():
